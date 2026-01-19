@@ -7,6 +7,6 @@ edition = "2024"
 
 winapi = { version = "0.3", features = ["winnt", "tlhelp32", "handleapi", "ioapiset", "fileapi", "errhandlingapi"] }
 anyhow = "1.0"
-
+ctrlc = "3.5.1"
 
 
