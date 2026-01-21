@@ -219,7 +219,7 @@ impl Driver {
             
             let error_code = unsafe { GetLastError() };
             unsafe {CloseHandle(self.hDriver)};
-            bail!("[!] DeviceIoControl failed! Error code: 0x{:08X}", error_code);
+            println!("[!] DeviceIoControl failed! Error code: 0x{:08X}", error_code);
 
         }
         
